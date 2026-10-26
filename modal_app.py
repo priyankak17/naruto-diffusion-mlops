@@ -9,6 +9,8 @@ import time
 
 APP_NAME = "pynk17-naruto-inference"
 MODEL_ID = "pynk17/sd-naruto-fp32-baseline"
+MODEL_REVISION = "f32002b0aad5378174e3db49d47143cec9f79d95"
+TOKENIZER_REVISION = "451f4fe16113bff5a5d2269ed5ad43b0592e9a14"
 CACHE_DIR = "/model-cache"
 
 app = modal.App(APP_NAME)
@@ -59,10 +61,12 @@ class Inference:
         tokenizer = CLIPTokenizer.from_pretrained(
             "stable-diffusion-v1-5/stable-diffusion-v1-5",
             subfolder="tokenizer",
+            revision=TOKENIZER_REVISION
         )
 
         self.pipe = StableDiffusionPipeline.from_pretrained(
             "pynk17/sd-naruto-fp32-baseline",
+            revision=MODEL_REVISION,
             tokenizer=tokenizer,
             torch_dtype=torch.float16,
             cache_dir="/model-cache",
