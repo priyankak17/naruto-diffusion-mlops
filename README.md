@@ -1,4 +1,4 @@
-# Diffusion Inference | Production-Oriented ML Serving
+## Diffusion Inference | Production-Oriented ML Serving
 
 **A cost-conscious MLOps project serving a fine-tuned Stable Diffusion 1.5 model through an authenticated API on a serverless NVIDIA T4 GPU.**
 
