@@ -35,7 +35,8 @@ def api(monkeypatch):
         calls.append(kwargs)
         return PNG_BYTES, 1234.5, 2.75
 
-    fake_inference = lambda: SimpleNamespace(run=SimpleNamespace(remote=fake_remote))
+    def fake_inference():
+        return SimpleNamespace(run=SimpleNamespace(remote=fake_remote))
     namespace = {'MODEL_ID': MODEL_ID, 'Inference': fake_inference}
     isolated = ast.Module(body=[web_function], type_ignores=[])
     exec(compile(ast.fix_missing_locations(isolated), str(source_path), 'exec'), namespace)
