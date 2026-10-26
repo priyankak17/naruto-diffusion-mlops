@@ -4,7 +4,7 @@
 
 [Model on Hugging Face](https://huggingface.co/pynk17/sd-naruto-fp32-baseline) · [Source code](https://github.com/priyankak17/naruto-diffusion-mlops) · [CI runs](https://github.com/priyankak17/naruto-diffusion-mlops/actions)
 
-## Engineering highlights
+### Engineering highlights
 
 - **Inference serving:** FastAPI `/generate` returns PNG images from a fine-tuned Stable Diffusion 1.5 pipeline hosted on Modal T4; the `/health` endpoint reports API gateway health.
 - **Cost controls:** GPU workers use `min_containers=0` (scale to zero) and `max_containers=1`. A persistent Modal Volume caches Hugging Face artifacts across container lifecycles.
@@ -12,7 +12,9 @@
 - **Reproducibility:** Pinned serving-library versions, immutable Hugging Face model/tokenizer revisions, and a static CI guard checking that revision pins remain in place.
 - **Quality gates:** 13 GPU-free pytest checks verified locally; GitHub Actions **API unit tests** and **Repository quality** both passed on commit `3c99d63`.
 
-## Measured results
+
+
+### Measured results
 
 Measurements from individual authenticated requests at **256 × 256**, **12 diffusion steps**, on Modal T4; these are *observations*, not throughput or p95 claims.
 
@@ -25,7 +27,9 @@ Measurements from individual authenticated requests at **256 × 256**, **12 diff
 
 **Key lesson:** GPU generation accounts for only part of user-visible latency. Serverless startup, model loading, and other request overhead require separate measurement. The API intentionally scales to zero to avoid continuously running a GPU, trading lower idle cost for cold-start latency.
 
-## Architecture
+
+
+### Architecture
 
 ```text
 Client
@@ -42,7 +46,9 @@ Modal Inference worker (NVIDIA T4; scale to zero)
 PNG + X-Inference-Ms + X-Peak-VRAM-GiB
 ```
 
-## Reproduce API checks without a GPU
+
+
+### Reproduce API checks without a GPU
 
 Use **Python 3.11**. From the repository root:
 
@@ -55,7 +61,9 @@ python scripts/check_model_revisions.py
 
 Testing & Validation: GitHub Actions runs automated API tests using a mocked GPU worker, keeping CI fast and cost-efficient. End-to-end GPU inference was independently validated on Modal T4 with successful PNG generation.
 
-## API example
+
+
+### API example
 
 The deployed endpoint requires a private API key stored in Modal Secrets. To generate an image from a shell where `API_URL` and `API_KEY` are already configured:
 
@@ -70,7 +78,9 @@ curl -sS -L --max-time 300 \
 
 **Health & Deployment:** `GET /health` provides a lightweight API gateway health check. GPU model readiness is validated through inference requests. The deployment uses scale-to-zero to optimize compute costs, with cold-start latency when the GPU worker is inactive.
 
-## Production engineering: implemented vs. next
+
+
+### Production engineering: implemented vs. next
 
 | Implemented and tested | Planned / not yet claimed |
 | --- | --- |
@@ -80,7 +90,9 @@ curl -sS -L --max-time 300 \
 | Unit tests, static checks and GitHub Actions CI | Expanded reliability testing, cost model and monitoring |
 | Immutable model and tokenizer revision configuration | Documented Docker/AWS portability design |
 
-## Design trade-offs
+
+
+### Design trade-offs
 
 - **Serverless over always-on GPUs:** lower idle spend at the cost of cold starts.
 - **FP16 at inference:** serves FP32-trained weights in half precision to reduce inference memory usage; no accuracy-equivalence claim is made.
