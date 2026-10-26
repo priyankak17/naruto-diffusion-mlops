@@ -11,6 +11,8 @@ jobs:
   static-quality:
     runs-on: ubuntu-latest
     steps:
+      - name: Verify immutable model revisions
+        run: python scripts/check_model_revisions.py
       - name: Check out source
         uses: actions/checkout@v4
       - name: Set up Python

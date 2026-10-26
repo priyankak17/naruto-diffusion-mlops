@@ -65,7 +65,7 @@ class Inference:
         )
 
         self.pipe = StableDiffusionPipeline.from_pretrained(
-            "pynk17/sd-naruto-fp32-baseline",
+            MODEL_ID,
             revision=MODEL_REVISION,
             tokenizer=tokenizer,
             torch_dtype=torch.float16,
