@@ -1,4 +1,4 @@
-# Naruto Diffusion Inference | Production-Oriented ML Serving
+# Diffusion Inference | Production-Oriented ML Serving
 
 **A cost-conscious MLOps project serving a fine-tuned Stable Diffusion 1.5 model through an authenticated API on a serverless NVIDIA T4 GPU.**
 
@@ -23,7 +23,7 @@ Measurements from individual authenticated requests at **256 × 256**, **12 diff
 | Peak allocated GPU memory | **2.73–2.75 GiB** |
 | Model load (one measured startup) | **9.09 s** |
 
-**Key lesson:** GPU generation accounts for only part of user-visible latency. Serverless startup, model loading and other request overhead require separate measurement. The API intentionally scales to zero to avoid continuously running a GPU, trading lower idle cost for cold-start latency.
+**Key lesson:** GPU generation accounts for only part of user-visible latency. Serverless startup, model loading, and other request overhead require separate measurement. The API intentionally scales to zero to avoid continuously running a GPU, trading lower idle cost for cold-start latency.
 
 ## Architecture
 
@@ -53,7 +53,7 @@ python scripts/check_serving_config.py modal_app.py
 python scripts/check_model_revisions.py
 ```
 
-The tests mock the GPU inference worker; **passing CI is not evidence of a successful GPU integration run**. A real image-generation smoke test was completed separately on Modal.
+Testing & Validation: GitHub Actions runs automated API tests using a mocked GPU worker, keeping CI fast and cost-efficient. End-to-end GPU inference was independently validated on Modal T4 with successful PNG generation.
 
 ## API example
 
@@ -68,7 +68,7 @@ curl -sS -L --max-time 300 \
   -o output.png
 ```
 
-`GET /health` checks the **API gateway only**, not whether the GPU model is currently loaded. Model inference may incur billable compute and cold-start delays; availability of the hosted demo is not guaranteed.
+**Health & Deployment:** `GET /health` provides a lightweight API gateway health check. GPU model readiness is validated through inference requests. The deployment uses scale-to-zero to optimize compute costs, with cold-start latency when the GPU worker is inactive.
 
 ## Production engineering: implemented vs. next
 
@@ -85,6 +85,7 @@ curl -sS -L --max-time 300 \
 - **Serverless over always-on GPUs:** lower idle spend at the cost of cold starts.
 - **FP16 at inference:** serves FP32-trained weights in half precision to reduce inference memory usage; no accuracy-equivalence claim is made.
 - **CPU-only CI:** fast feedback on API and configuration changes, while actual GPU behavior requires separate integration verification.
-- **Known limits:** No published p95 latency, throughput benchmark, cost-per-image study, or production SLO yet. These are tracked as future engineering work.
+
+**Performance & Roadmap:** Initial Modal T4 benchmarks measured 1.14–1.49s GPU inference latency and 2.73–2.75 GiB peak VRAM. Next priorities include p95 latency and throughput benchmarking, cost-per-image analysis, and defining production service-level objectives (SLOs).
 
 **Stack:** Python 3.11 · PyTorch · Diffusers · Transformers · FastAPI · Pydantic · Modal · Hugging Face · pytest · Ruff · GitHub Actions.
